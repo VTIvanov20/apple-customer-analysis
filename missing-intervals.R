@@ -1,6 +1,6 @@
 estimated <- crossing(
   store = c("MBS", "Orchard"),
-  zone = c("iPhone", "Mac", "Accessories"),
+  zone = c("iPhone", "Desktop", "Accessories"),
   interval = 0:5
 ) %>%
   left_join(growth, by = c("store", "zone")) %>%
@@ -24,3 +24,31 @@ estimated <- crossing(
       estimated_interactions
     )
   )
+
+ggplot(
+  estimated,
+  aes(
+    x = interval,
+    y = interactions,
+    group = zone,
+    color = zone
+  )
+) +
+  geom_line() +
+  geom_point(aes(shape = source), size = 3) +
+  facet_wrap(~store) +
+  scale_x_continuous(
+    breaks = 0:5,
+    labels = c(
+      "00-10", "10-20", "20-30",
+      "30-40", "40-50", "50-60"
+    )
+  ) +
+  labs(
+    title = "Observed and Estimated Product Interactions",
+    x = "Observation interval (minutes)",
+    y = "Product interactions",
+    color = "Product category",
+    shape = "Data source"
+  ) +
+  theme_minimal()
