@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orchard Observation Lab</title>
+  <link rel="stylesheet" href="style.css" />
+  <body>
+    <header>
+      <div class="brand">visual simulation</div>
+    </header>
+    <main>
+      <section class="toolbar">
+        <button id="play" class="primary">▶ Play simulation</button
+        ><button id="reset">↺ Reset</button
+        ><label
+          >Speed
+          <select id="speed">
+            <option value="15">15×</option>
+            <option value="60" selected>60×</option>
+            <option value="120">120×</option>
+          </select></label
+        ><b id="clock">00:00 / 60:00</b
+        ><input id="timeline" type="range" min="0" value="0" step="1" /><label
+          ><input type="checkbox" id="zones" /> Zones</label
+        ><label><input type="checkbox" id="grid" checked /> Coordinates</label>
+      </section>
+      <section class="metrics">
+        <div>
+          <span>Simulated customers</span><strong id="customers">0</strong>
+        </div>
+        <div><span>Recorded staff</span><strong id="staffCount">33</strong></div>
+        <div>
+          <span>Activity allocation</span
+          ><strong id="splitLabel">70 / 30</strong>
+        </div>
+        <div>
+          <span>Coords</span
+          ><strong>10 sec <small>resolution</small></strong>
+        </div>
+      </section>
+      <section class="floors">
+        <article>
+          <div class="floorhead">
+            <h2>01 | Ground floor</h2>
+            <span id="gcount"></span>
+          </div>
+          <canvas id="ground" width="1774" height="887"></canvas>
+        </article>
+        <article>
+          <div class="floorhead">
+            <h2>02 | Mezzanine</h2>
+            <span id="mcount"></span>
+          </div>
+          <canvas id="mezzanine" width="1774" height="887"></canvas>
+        </article>
+      </section>
+      <div class="legend">
+
+      </div>
+      <section class="bottom">
+        <article class="panel">
+          <div class="sectionhead">
+            <h2>Bring your own values</h2>
+            <button id="apply" class="primary">Rebuild scenario</button>
+          </div>
+          <p>
+            Counts are events during the observation window. Times are window
+            start minutes. Edit both readings to fit your own observation
+            period.
+          </p>
+          <div class="settings">
+            <label
+              >Scenario duration (min)<input
+                id="duration"
+                type="number"
+                min="10"
+                max="180"
+                value="60" /></label
+            ><label
+              >Observation window (min)<input
+                id="window"
+                type="number"
+                min="1"
+                max="60"
+                value="10" /></label
+            ><label
+              >Ground activity (%)<input
+                id="split"
+                type="number"
+                min="0"
+                max="100"
+                value="70" /></label
+            ><label
+              >Mean browsing duration (min)<input
+                id="dwell"
+                type="number"
+                min="1"
+                max="30"
+                value="6" /></label
+            ><label
+              >Events per visitor (assumed)<input
+              max="10"
+                id="events"
+                type="number"
+                min="1"
+                step="0.5"
+                value="2" /></label
+            ><label
+              >Random seed<input
+                id="seed"
+                type="number"
+                min="1"
+                max="999999"
+                value="42"
+            /></label>
+          </div>
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Zone</th>
+                  <th>First time</th>
+                  <th>Count</th>
+                  <th>Second time</th>
+                  <th>Count</th>
+                  <th>Ground staff</th>
+                  <th>Mezz. staff</th>
+                </tr>
+              </thead>
+              <tbody id="inputs"></tbody>
+            </table>
+          </div>
+          <div id="error" role="alert"></div>
+          <div class="buttons">
+            <button id="csv">↓ Coordinate CSV</button
+            ><button id="rates">↓ Modelled activity CSV</button
+            ><button id="config">↓ Scenario JSON</button
+            ><label class="filebutton"
+              >↑ Import scenario<input type="file" id="import" accept=".json"
+            /></label>
+          </div>
+        </article>
+        <article class="panel method">
+          <h2>Keep in mind</h2>
+          <ol>
+            <li>
+              <b>Observed anchors.</b> Two category readings were used to determine a compound growth curve.
+            </li>
+            <li>
+              <b>Activity to visitors.</b> Events per window / events per visitor gives a scenario arrival rate. A combination of browsing duration plus route travel was used to determine relative occupancy.
+            </li>
+            <li>
+              <b>Spatial placement.</b> Visitors enter a sort of simplified route and browse beside the displays. Staff wander near their assigned categories. The exact positions are only demonstrative.
+            </li>
+            <li>
+              <b>One reproducible clock.</b> Rebuilding with the same inputs and seed reproduces the same tracks. Both floors advance together.
+            </li>
+          </ol>
+          <details>
+            <summary>Assumptions & limitations</summary>
+            <p>
+              Floor allocation was made by the 70/30 assumption. Initial occupants are a synthetic warm start. Browsing duration excludes travel time; no relationship between visitor counts and unique observed customers is claimed. Furniture exclusions and paths are approximate, not a measured navigation map. No queueing, capacity, service outcomes or purchase probability is modelled. Staff movement retains category totals; observed interchangeability is not a measured transition rule.
+            </p>
+            <p>
+              Growth: P(t) = P₁ × (P₂/P₁)^((t−t₁)/(t₂−t₁)). P is events per
+              observation window, not a point-in-time headcount. Within each
+              model window the arrival rate is constant. Beyond the two anchor
+              windows values are extrapolated. Zero anchors are rejected because
+              this growth model cannot handle them.
+            </p>
+            <p>
+              Reference: Apple_Singapore_Updated_Study.docx, Orchard
+              observations, 6 November 2026. Staff interaction and demo counts
+              are not used to fabricate service durations. Category “desktop”
+              follows your broad definition including tablets.
+            </p>
+          </details>
+        </article>
+      </section>
+      <!-- <footer>
+        OBSERVATIONS / Orchard scenario prototype · All exported coordinates are
+        labelled synthetic.
+      </footer> -->
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
